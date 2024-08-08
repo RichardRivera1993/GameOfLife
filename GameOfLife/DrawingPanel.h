@@ -10,5 +10,6 @@ public:
 
 private:
     void OnPaint(wxPaintEvent& event);
+    void OnSize(wxSizeEvent& event);
     int gridSize = 15; // setting default grid size
 };
