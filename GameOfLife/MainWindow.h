@@ -23,7 +23,7 @@ private:
     DrawingPanel* drawingPanel;
     wxBoxSizer* sizer;
     wxStatusBar* statusBar; // Status bar variable
-    wxToolBar* toolBar; //Toolbar variable
+    wxToolBar* toolBar; // toolbar variable
     wxTimer* timer; // timer variable
     int timerInterval = 50; // timer in milliseconds
     int gridSize = 15;
