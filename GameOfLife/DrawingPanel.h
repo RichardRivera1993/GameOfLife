@@ -17,4 +17,6 @@ private:
 
     std::vector<std::vector<bool>>& gameBoard; // Reference to the game board
     int gridSize; // Grid size
+
+    wxDECLARE_EVENT_TABLE();
 };

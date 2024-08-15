@@ -1,5 +1,10 @@
 #include "MainWindow.h"
 
+
+wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
+EVT_SIZE(MainWindow::OnSizeChange)
+wxEND_EVENT_TABLE()
+
 MainWindow::MainWindow(const wxString& title)
     : wxFrame(nullptr, wxID_ANY, title, wxPoint(0, 0), wxSize(400, 400))
 {
@@ -11,7 +16,6 @@ MainWindow::MainWindow(const wxString& title)
     sizer->Add(drawingPanel, 1, wxEXPAND | wxALL, 0);
 
     this->SetSizer(sizer);
-    this->Bind(wxEVT_SIZE, &MainWindow::OnSizeChange, this);
 }
 
 MainWindow::~MainWindow()

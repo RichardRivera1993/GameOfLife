@@ -18,4 +18,6 @@ private:
 
     void InitializeGrid(); // Method to initialize the grid
     void OnSizeChange(wxSizeEvent& event); // Declare OnSizeChange method
+
+    wxDECLARE_EVENT_TABLE();
 };
