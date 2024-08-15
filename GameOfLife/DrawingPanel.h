@@ -1,15 +1,20 @@
 #pragma once
 
 #include "wx/wx.h"
+#include <vector>
 
 class DrawingPanel : public wxPanel
 {
 public:
-    DrawingPanel(wxWindow* parent);
+    DrawingPanel(wxWindow* parent, std::vector<std::vector<bool>>& gameBoard);
     virtual ~DrawingPanel();
-    void SetSize(const wxSize& size); // Add SetSize method
+    void SetSize(const wxSize& size);
+    void SetGridSize(int size);
 
 private:
     void OnPaint(wxPaintEvent& event);
-    int gridSize = 15; // Default grid size
+    void OnMouseUp(wxMouseEvent& event); // Mouse event handler
+
+    std::vector<std::vector<bool>>& gameBoard; // Reference to the game board
+    int gridSize; // Grid size
 };

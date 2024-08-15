@@ -2,11 +2,12 @@
 #include "wx/graphics.h"
 #include "wx/dcbuffer.h"
 
-DrawingPanel::DrawingPanel(wxWindow* parent)
-    : wxPanel(parent, wxID_ANY)
+DrawingPanel::DrawingPanel(wxWindow* parent, std::vector<std::vector<bool>>& gameBoard)
+    : wxPanel(parent, wxID_ANY), gameBoard(gameBoard), gridSize(15) // Initialize game board reference
 {
     this->SetBackgroundStyle(wxBG_STYLE_PAINT);
     this->Bind(wxEVT_PAINT, &DrawingPanel::OnPaint, this);
+    this->Bind(wxEVT_LEFT_UP, &DrawingPanel::OnMouseUp, this); // Bind mouse event
 }
 
 DrawingPanel::~DrawingPanel()
@@ -16,14 +17,20 @@ DrawingPanel::~DrawingPanel()
 
 void DrawingPanel::SetSize(const wxSize& size)
 {
-    wxPanel::SetSize(size); // Set the size of the panel
-    Refresh(); // Refresh to trigger a repaint with the new size
+    wxPanel::SetSize(size);
+    Refresh();
+}
+
+void DrawingPanel::SetGridSize(int size)
+{
+    gridSize = size;
+    Refresh();
 }
 
 void DrawingPanel::OnPaint(wxPaintEvent& event)
 {
-    wxAutoBufferedPaintDC dc(this); // Double buffering to prevent flickering
-    dc.Clear(); // Clear the entire drawing surface
+    wxAutoBufferedPaintDC dc(this);
+    dc.Clear();
 
     wxGraphicsContext* context = wxGraphicsContext::Create(dc);
     if (!context) return;
@@ -31,24 +38,49 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
     context->SetPen(*wxBLACK);
     context->SetBrush(*wxWHITE);
 
-    // Get the size of the DrawingPanel
     int panelWidth, panelHeight;
     GetClientSize(&panelWidth, &panelHeight);
 
-    // Calculate cell size based on panel size and grid size
     int cellWidth = panelWidth / gridSize;
     int cellHeight = panelHeight / gridSize;
 
-    // Draw the grid
     for (int row = 0; row < gridSize; row++)
     {
         for (int col = 0; col < gridSize; col++)
         {
             int x = col * cellWidth;
             int y = row * cellHeight;
+
+            if (gameBoard[row][col]) {
+                context->SetBrush(*wxBLACK); // Fill with black if the cell is alive
+            }
+            else {
+                context->SetBrush(*wxWHITE); // Fill with white if the cell is dead
+            }
+
             context->DrawRectangle(x, y, cellWidth, cellHeight);
         }
     }
 
     delete context;
+}
+
+void DrawingPanel::OnMouseUp(wxMouseEvent& event)
+{
+    int x = event.GetX();
+    int y = event.GetY();
+
+    int panelWidth, panelHeight;
+    GetClientSize(&panelWidth, &panelHeight);
+
+    int cellWidth = panelWidth / gridSize;
+    int cellHeight = panelHeight / gridSize;
+
+    int col = x / cellWidth;
+    int row = y / cellHeight;
+
+    if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
+        gameBoard[row][col] = !gameBoard[row][col]; // Toggle the cell's state
+        Refresh(); // Trigger a repaint to reflect the change
+    }
 }

@@ -3,19 +3,33 @@
 MainWindow::MainWindow(const wxString& title)
     : wxFrame(nullptr, wxID_ANY, title, wxPoint(0, 0), wxSize(400, 400))
 {
-    drawingPanel = new DrawingPanel(this);
+    InitializeGrid(); // Initialize the game board before creating the DrawingPanel
 
-    sizer = new wxBoxSizer(wxVERTICAL); // Instantiate wxBoxSizer with wxVERTICAL
-    sizer->Add(drawingPanel, 1, wxEXPAND | wxALL, 0); // Add DrawingPanel to sizer with expand and proportion
+    drawingPanel = new DrawingPanel(this, gameBoard); // Pass the game board reference
 
-    this->SetSizer(sizer); // Set the sizer for the window
+    sizer = new wxBoxSizer(wxVERTICAL);
+    sizer->Add(drawingPanel, 1, wxEXPAND | wxALL, 0);
 
-    this->Bind(wxEVT_SIZE, &MainWindow::OnSizeChange, this); // Bind resize event
+    this->SetSizer(sizer);
+    this->Bind(wxEVT_SIZE, &MainWindow::OnSizeChange, this);
 }
 
 MainWindow::~MainWindow()
 {
     // Cleanup code, if needed
+}
+
+void MainWindow::InitializeGrid()
+{
+    gameBoard.resize(gridSize);
+    for (int i = 0; i < gridSize; ++i)
+    {
+        gameBoard[i].resize(gridSize, false); // Initialize all cells as dead (false)
+    }
+
+    if (drawingPanel) {
+        drawingPanel->SetGridSize(gridSize); // Ensure drawingPanel is not nullptr
+    }
 }
 
 void MainWindow::OnSizeChange(wxSizeEvent& event)
