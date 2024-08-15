@@ -32,6 +32,7 @@ private:
     void InitializeGrid();
     void OnSizeChange(wxSizeEvent& event);
     void UpdateStatusBar(); // Method to update the status bar
+    int CountLivingNeighbors(int row, int col); // method to count living neighbors
 
     //handlers for toolbar buttons
     void OnPlay(wxCommandEvent& event);

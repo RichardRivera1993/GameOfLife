@@ -105,3 +105,34 @@ void MainWindow::OnClear(wxCommandEvent& event)
     InitializeGrid(); // Re-initialize the grid to clear it
     drawingPanel->Refresh(); // Refresh the drawing panel to reflect the change
 }
+
+int MainWindow::CountLivingNeighbors(int row, int col)
+{
+    int livingNeighbors = 0;
+
+    // Iterate through the neighboring cells
+    for (int i = -1; i <= 1; ++i)
+    {
+        for (int j = -1; j <= 1; ++j)
+        {
+            // Skip the cell itself
+            if (i == 0 && j == 0)
+                continue;
+
+            int neighborRow = row + i;
+            int neighborCol = col + j;
+
+            // Check if the neighboring cell is within bounds
+            if (neighborRow >= 0 && neighborRow < gridSize &&
+                neighborCol >= 0 && neighborCol < gridSize)
+            {
+                if (gameBoard[neighborRow][neighborCol])
+                {
+                    ++livingNeighbors;
+                }
+            }
+        }
+    }
+
+    return livingNeighbors;
+}
