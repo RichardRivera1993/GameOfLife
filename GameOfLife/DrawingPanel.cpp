@@ -36,7 +36,6 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
     if (!context) return;
 
     context->SetPen(*wxBLACK);
-    context->SetBrush(*wxWHITE);
 
     int panelWidth, panelHeight;
     GetClientSize(&panelWidth, &panelHeight);
@@ -51,19 +50,24 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
             int x = col * cellWidth;
             int y = row * cellHeight;
 
-            if (gameBoard[row][col]) {
-                context->SetBrush(*wxBLACK); // Fill with black if the cell is alive
+            // Check the corresponding cell in the game board
+            if (gameBoard[row][col])
+            {
+                context->SetBrush(*wxLIGHT_GREY); // Living cell
             }
-            else {
-                context->SetBrush(*wxWHITE); // Fill with white if the cell is dead
+            else
+            {
+                context->SetBrush(*wxWHITE); // Dead cell
             }
 
+            // Draw the rectangle for this cell
             context->DrawRectangle(x, y, cellWidth, cellHeight);
         }
     }
 
     delete context;
 }
+
 
 void DrawingPanel::OnMouseUp(wxMouseEvent& event)
 {
