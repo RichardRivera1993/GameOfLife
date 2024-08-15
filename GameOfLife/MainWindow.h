@@ -24,6 +24,8 @@ private:
     wxBoxSizer* sizer;
     wxStatusBar* statusBar; // Status bar variable
     wxToolBar* toolBar; //Toolbar variable
+    wxTimer* timer; // timer variable
+    int timerInterval = 50; // timer in milliseconds
     int gridSize = 15;
     int generationCount = 0; // Number of generations
     int livingCellsCount = 0; // Number of living cells
@@ -40,6 +42,9 @@ private:
     void OnPause(wxCommandEvent& event);
     void OnNext(wxCommandEvent& event);
     void OnClear(wxCommandEvent& event);
+
+    //handler for the timer
+    void OnTimer(wxTimerEvent& event);
 
     wxDECLARE_EVENT_TABLE();
 };

@@ -11,10 +11,12 @@ EVT_MENU(ID_Play, MainWindow::OnPlay)
 EVT_MENU(ID_Pause, MainWindow::OnPause)
 EVT_MENU(ID_Next, MainWindow::OnNext)
 EVT_MENU(ID_Clear, MainWindow::OnClear)
+EVT_TIMER(wxID_ANY, MainWindow::OnTimer) // Bind the timer event
 wxEND_EVENT_TABLE()
 
 MainWindow::MainWindow(const wxString& title)
-    : wxFrame(nullptr, wxID_ANY, title, wxPoint(0, 0), wxSize(400, 400))
+    : wxFrame(nullptr, wxID_ANY, title, wxPoint(0, 0), wxSize(400, 400)),
+    timer(new wxTimer(this, wxID_ANY))
 {
     InitializeGrid(); // Initialize the game board
 
@@ -45,15 +47,18 @@ MainWindow::MainWindow(const wxString& title)
     wxBitmap clearIcon(trash_xpm);
     toolBar->AddTool(ID_Clear, "Clear", clearIcon);
 
-    // Render the toolbar
     toolBar->Realize();
+
 
     this->Layout(); // Ensure the layout includes the status bar and toolbar
 }
 
 MainWindow::~MainWindow()
 {
-    // Cleanup code, if needed
+    if (timer) {
+        timer->Stop();
+        delete timer;
+    }
 }
 
 void MainWindow::InitializeGrid()
@@ -86,12 +91,18 @@ void MainWindow::UpdateStatusBar()
 // Event handler implementations
 void MainWindow::OnPlay(wxCommandEvent& event)
 {
-    // Start the game logic
+    if (timer == nullptr) {
+        wxLogError("Timer is not initialized!");
+        return;
+    }
+    // Start the timer with the interval
+    timer->Start(timerInterval);
 }
 
 void MainWindow::OnPause(wxCommandEvent& event)
 {
-    // Pause the game logic
+    // Stop the timer
+    timer->Stop();
 }
 
 void MainWindow::OnNext(wxCommandEvent& event)
@@ -205,4 +216,9 @@ void MainWindow::CalculateNextGeneration()
     // Update the status bar and refresh the drawing panel
     UpdateStatusBar();
     drawingPanel->Refresh();
+}
+void MainWindow::OnTimer(wxTimerEvent& event)
+{
+    // Call the next generation method whent imer finishes
+    CalculateNextGeneration();
 }
