@@ -1,6 +1,5 @@
 #include "MainWindow.h"
 
-
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 EVT_SIZE(MainWindow::OnSizeChange)
 wxEND_EVENT_TABLE()
@@ -8,14 +7,20 @@ wxEND_EVENT_TABLE()
 MainWindow::MainWindow(const wxString& title)
     : wxFrame(nullptr, wxID_ANY, title, wxPoint(0, 0), wxSize(400, 400))
 {
-    InitializeGrid(); // Initialize the game board before creating the DrawingPanel
+    InitializeGrid(); // Initialize the game board
 
-    drawingPanel = new DrawingPanel(this, gameBoard); // Pass the game board reference
+    drawingPanel = new DrawingPanel(this, gameBoard); // Initialize DrawingPanel after gameBoard
 
     sizer = new wxBoxSizer(wxVERTICAL);
     sizer->Add(drawingPanel, 1, wxEXPAND | wxALL, 0);
 
     this->SetSizer(sizer);
+
+    // Create the status bar
+    statusBar = this->CreateStatusBar();
+    UpdateStatusBar(); // Update status bar with initial values
+
+    this->Layout(); // Ensure the layout includes the status bar
 }
 
 MainWindow::~MainWindow()
@@ -29,16 +34,22 @@ void MainWindow::InitializeGrid()
     for (int i = 0; i < gridSize; ++i)
     {
         gameBoard[i].resize(gridSize, false); // Initialize all cells as dead (false)
-    }
-
+    } 
     if (drawingPanel) {
-        drawingPanel->SetGridSize(gridSize); // Ensure drawingPanel is not nullptr
+        drawingPanel->SetGridSize(gridSize);// Pass the grid size to the DrawingPanel
     }
 }
 
 void MainWindow::OnSizeChange(wxSizeEvent& event)
 {
-    wxSize size = this->GetSize(); // Get the new size of the window
-    drawingPanel->SetSize(size);   // Set the size for the DrawingPanel
-    event.Skip(); // Allow other events to be processed
+    wxSize size = this->GetSize();
+    drawingPanel->SetSize(size);
+    event.Skip();
+}
+
+void MainWindow::UpdateStatusBar()
+{
+    wxString statusText;
+    statusText.Printf("Generations: %d | Living Cells: %d", generationCount, livingCellsCount);
+    statusBar->SetStatusText(statusText);
 }

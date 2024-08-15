@@ -12,12 +12,16 @@ public:
 
 private:
     DrawingPanel* drawingPanel;
-    wxBoxSizer* sizer; // Add a wxBoxSizer pointer
-    int gridSize = 15; // Moved grid size to MainWindow
-    std::vector<std::vector<bool>> gameBoard; // Game board data structure
+    wxBoxSizer* sizer;
+    wxStatusBar* statusBar; // Status bar variable
+    int gridSize = 15;
+    int generationCount = 0; // Number of generations
+    int livingCellsCount = 0; // Number of living cells
+    std::vector<std::vector<bool>> gameBoard;
 
-    void InitializeGrid(); // Method to initialize the grid
-    void OnSizeChange(wxSizeEvent& event); // Declare OnSizeChange method
+    void InitializeGrid();
+    void OnSizeChange(wxSizeEvent& event);
+    void UpdateStatusBar(); // Method to update the status bar
 
     wxDECLARE_EVENT_TABLE();
 };
