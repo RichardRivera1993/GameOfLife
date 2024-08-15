@@ -96,7 +96,7 @@ void MainWindow::OnPause(wxCommandEvent& event)
 
 void MainWindow::OnNext(wxCommandEvent& event)
 {
-    // Advance the game by one generation
+    CalculateNextGeneration();  // Advance the game by one generation
 }
 
 void MainWindow::OnClear(wxCommandEvent& event)
@@ -135,4 +135,59 @@ int MainWindow::CountLivingNeighbors(int row, int col)
     }
 
     return livingNeighbors;
+}
+
+void MainWindow::CalculateNextGeneration()
+{
+    // Create a sandbox that is a copy of the game board
+    std::vector<std::vector<bool>> sandbox = gameBoard;
+    sandbox.resize(gridSize);
+    for (int i = 0; i < gridSize; ++i)
+    {
+        sandbox[i].resize(gridSize, false);
+    }
+
+    int newLivingCellsCount = 0;
+
+    // Iterate through each cell in the game board
+    for (int row = 0; row < gridSize; ++row)
+    {
+        for (int col = 0; col < gridSize; ++col)
+        {
+            int livingNeighbors = CountLivingNeighbors(row, col);
+
+            // Apply the rules of the game
+            if (gameBoard[row][col]) // Cell is alive
+            {
+                if (livingNeighbors < 2 || livingNeighbors > 3)
+                {
+                    sandbox[row][col] = false; // Cell dies
+                }
+                else
+                {
+                    sandbox[row][col] = true; // Cell stays alive
+                    ++newLivingCellsCount;
+                }
+            }
+            else // Cell is dead
+            {
+                if (livingNeighbors == 3)
+                {
+                    sandbox[row][col] = true; // Cell becomes alive
+                    ++newLivingCellsCount;
+                }
+            }
+        }
+    }
+
+    // Swap the sandbox with the game board to update the cells
+    gameBoard.swap(sandbox);
+
+    // Update the living cells count and generation count
+    livingCellsCount = newLivingCellsCount;
+    ++generationCount;
+
+    // Update the status bar and refresh the drawing panel
+    UpdateStatusBar();
+    drawingPanel->Refresh();
 }

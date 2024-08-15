@@ -33,6 +33,7 @@ private:
     void OnSizeChange(wxSizeEvent& event);
     void UpdateStatusBar(); // Method to update the status bar
     int CountLivingNeighbors(int row, int col); // method to count living neighbors
+    void CalculateNextGeneration(); //method to calculate the next generation
 
     //handlers for toolbar buttons
     void OnPlay(wxCommandEvent& event);
