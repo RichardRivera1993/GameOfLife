@@ -101,9 +101,24 @@ void MainWindow::OnNext(wxCommandEvent& event)
 
 void MainWindow::OnClear(wxCommandEvent& event)
 {
-    // Clear the game board
-    InitializeGrid(); // Re-initialize the grid to clear it
-    drawingPanel->Refresh(); // Refresh the drawing panel to reflect the change
+    // Reset the game board to all false (dead cells)
+    for (int row = 0; row < gridSize; ++row)
+    {
+        for (int col = 0; col < gridSize; ++col)
+        {
+            gameBoard[row][col] = false;
+        }
+    }
+
+    // Reset the living cell count and generation count
+    livingCellsCount = 0;
+    generationCount = 0;
+
+    // Update the status bar
+    UpdateStatusBar();
+
+    // Refresh the drawing panel to reflect the cleared board
+    drawingPanel->Refresh();
 }
 
 int MainWindow::CountLivingNeighbors(int row, int col)
