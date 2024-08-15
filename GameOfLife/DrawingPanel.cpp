@@ -2,24 +2,22 @@
 #include "wx/graphics.h"
 #include "wx/dcbuffer.h"
 
-void DrawingPanel::OnSize(wxSizeEvent& event)
-{
-    Refresh(); // Force the panel to redraw itself
-    event.Skip(); // Continue processing the event
-}
-
-
 DrawingPanel::DrawingPanel(wxWindow* parent)
     : wxPanel(parent, wxID_ANY)
 {
     this->SetBackgroundStyle(wxBG_STYLE_PAINT);
     this->Bind(wxEVT_PAINT, &DrawingPanel::OnPaint, this);
-    this->Bind(wxEVT_SIZE, &DrawingPanel::OnSize, this); // Bind the resize event
 }
 
 DrawingPanel::~DrawingPanel()
 {
     // Cleanup code, if needed
+}
+
+void DrawingPanel::SetSize(const wxSize& size)
+{
+    wxPanel::SetSize(size); // Set the size of the panel
+    Refresh(); // Refresh to trigger a repaint with the new size
 }
 
 void DrawingPanel::OnPaint(wxPaintEvent& event)
@@ -54,5 +52,3 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
 
     delete context;
 }
-
-

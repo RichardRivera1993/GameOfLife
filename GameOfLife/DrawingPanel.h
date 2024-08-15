@@ -7,9 +7,9 @@ class DrawingPanel : public wxPanel
 public:
     DrawingPanel(wxWindow* parent);
     virtual ~DrawingPanel();
+    void SetSize(const wxSize& size); // Add SetSize method
 
 private:
     void OnPaint(wxPaintEvent& event);
-    void OnSize(wxSizeEvent& event);
-    int gridSize = 15; // setting default grid size
+    int gridSize = 15; // Default grid size
 };
