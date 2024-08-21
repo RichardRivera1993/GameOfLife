@@ -1,4 +1,5 @@
 #pragma once
+
 #include "wx/wx.h"
 #include "wx/spinctrl.h"
 #include "wx/clrpicker.h"
@@ -11,7 +12,7 @@ public:
     virtual ~SettingsDialog() {}
 
 private:
-    Settings* settings; // Pointer to the settings object
+    Settings* settings;
 
     wxSpinCtrl* gridSizeCtrl;
     wxSpinCtrl* intervalCtrl;

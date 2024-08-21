@@ -3,17 +3,16 @@
 #include "wx/wx.h"
 #include "DrawingPanel.h"
 #include "Settings.h"
-#include <vector>
 
-
-//IDs for the toolbar buttons
 enum
 {
     ID_Play = 10001,
     ID_Pause,
     ID_Next,
-    ID_Clear
+    ID_Clear,
+    ID_Settings
 };
+
 class MainWindow : public wxFrame
 {
 public:
@@ -23,30 +22,31 @@ public:
 private:
     DrawingPanel* drawingPanel;
     wxBoxSizer* sizer;
-    wxStatusBar* statusBar; // Status bar variable
-    wxToolBar* toolBar; // toolbar variable
-    wxTimer* timer; // timer variable
-    Settings settings; //settings object
-    int timerInterval = 50; // timer in milliseconds
-    int gridSize = 15;
-    int generationCount = 0; // Number of generations
-    int livingCellsCount = 0; // Number of living cells
+    wxStatusBar* statusBar;
+    wxToolBar* toolBar;
+    wxMenuBar* menuBar;
+    wxMenu* optionsMenu;
+
+    wxTimer* timer;
+    Settings settings;
+
+    int generationCount = 0;
+    int livingCellsCount = 0;
     std::vector<std::vector<bool>> gameBoard;
 
     void InitializeGrid();
     void OnSizeChange(wxSizeEvent& event);
-    void UpdateStatusBar(); // Method to update the status bar
-    int CountLivingNeighbors(int row, int col); // method to count living neighbors
-    void CalculateNextGeneration(); //method to calculate the next generation
-    void OnSettings(wxCommandEvent& event);
+    void UpdateStatusBar();
+    int CountLivingNeighbors(int row, int col);
+    void CalculateNextGeneration();
 
-    //handlers for toolbar buttons
+    // Event handlers for toolbar buttons and menu items
     void OnPlay(wxCommandEvent& event);
     void OnPause(wxCommandEvent& event);
     void OnNext(wxCommandEvent& event);
     void OnClear(wxCommandEvent& event);
+    void OnSettings(wxCommandEvent& event);
 
-    //handler for the timer
     void OnTimer(wxTimerEvent& event);
 
     wxDECLARE_EVENT_TABLE();

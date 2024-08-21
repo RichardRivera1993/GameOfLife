@@ -11,14 +11,14 @@ public:
     virtual ~DrawingPanel();
     void SetSize(const wxSize& size);
     void SetGridSize(int size);
-    void SetSettings(Settings* settings); // Setting pointer setter
+    void SetSettings(Settings* settings); // Setter for settings pointer
 
 private:
     void OnPaint(wxPaintEvent& event);
-    void OnMouseUp(wxMouseEvent& event); // Mouse event handler
+    void OnMouseUp(wxMouseEvent& event);
 
-    std::vector<std::vector<bool>>& gameBoard; // Reference to the game board
-    Settings* settings; //Settings pointer
+    std::vector<std::vector<bool>>& gameBoard;
+    Settings* settings;
 
     wxDECLARE_EVENT_TABLE();
 };

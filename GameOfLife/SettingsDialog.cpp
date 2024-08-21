@@ -15,7 +15,7 @@ SettingsDialog::SettingsDialog(wxWindow* parent, Settings* settings)
     wxBoxSizer* gridSizeSizer = new wxBoxSizer(wxHORIZONTAL);
     gridSizeSizer->Add(new wxStaticText(this, wxID_ANY, "Grid Size:"), 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
     gridSizeCtrl = new wxSpinCtrl(this, wxID_ANY);
-    gridSizeCtrl->SetRange(5, 100); 
+    gridSizeCtrl->SetRange(5, 100);
     gridSizeCtrl->SetValue(settings->gridSize);
     gridSizeSizer->Add(gridSizeCtrl, 1, wxALIGN_CENTER_VERTICAL | wxALL, 5);
     mainSizer->Add(gridSizeSizer, 0, wxEXPAND | wxALL, 5);
@@ -24,7 +24,7 @@ SettingsDialog::SettingsDialog(wxWindow* parent, Settings* settings)
     wxBoxSizer* intervalSizer = new wxBoxSizer(wxHORIZONTAL);
     intervalSizer->Add(new wxStaticText(this, wxID_ANY, "Interval (ms):"), 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
     intervalCtrl = new wxSpinCtrl(this, wxID_ANY);
-    intervalCtrl->SetRange(10, 10000); 
+    intervalCtrl->SetRange(10, 10000);
     intervalCtrl->SetValue(settings->interval);
     intervalSizer->Add(intervalCtrl, 1, wxALIGN_CENTER_VERTICAL | wxALL, 5);
     mainSizer->Add(intervalSizer, 0, wxEXPAND | wxALL, 5);
@@ -47,13 +47,11 @@ SettingsDialog::SettingsDialog(wxWindow* parent, Settings* settings)
     wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
     mainSizer->Add(buttonSizer, 0, wxALIGN_CENTER | wxALL, 10);
 
-    // Set the sizer for the dialog
     SetSizerAndFit(mainSizer);
 }
 
 void SettingsDialog::OnOk(wxCommandEvent& event)
 {
-    // Apply settings
     settings->gridSize = gridSizeCtrl->GetValue();
     settings->interval = intervalCtrl->GetValue();
     settings->SetLivingCellColor(livingCellColorPicker->GetColour());

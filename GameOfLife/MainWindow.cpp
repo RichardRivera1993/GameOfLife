@@ -1,9 +1,9 @@
 #include "MainWindow.h"
+#include "SettingsDialog.h"
 #include "play.xpm"
 #include "pause.xpm"
 #include "next.xpm"
 #include "trash.xpm"
-#include "SettingsDialog.h"
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 EVT_SIZE(MainWindow::OnSizeChange)
@@ -11,6 +11,7 @@ EVT_MENU(ID_Play, MainWindow::OnPlay)
 EVT_MENU(ID_Pause, MainWindow::OnPause)
 EVT_MENU(ID_Next, MainWindow::OnNext)
 EVT_MENU(ID_Clear, MainWindow::OnClear)
+EVT_MENU(ID_Settings, MainWindow::OnSettings)
 EVT_TIMER(wxID_ANY, MainWindow::OnTimer)
 wxEND_EVENT_TABLE()
 
@@ -21,7 +22,7 @@ MainWindow::MainWindow(const wxString& title)
     InitializeGrid();
 
     drawingPanel = new DrawingPanel(this, gameBoard);
-    drawingPanel->SetSettings(&settings); // Pass settings to the drawing panel
+    drawingPanel->SetSettings(&settings);
 
     sizer = new wxBoxSizer(wxVERTICAL);
     sizer->Add(drawingPanel, 1, wxEXPAND | wxALL, 0);
@@ -36,7 +37,15 @@ MainWindow::MainWindow(const wxString& title)
     toolBar->AddTool(ID_Pause, "Pause", wxBitmap(pause_xpm));
     toolBar->AddTool(ID_Next, "Next", wxBitmap(next_xpm));
     toolBar->AddTool(ID_Clear, "Clear", wxBitmap(trash_xpm));
+    
     toolBar->Realize();
+
+    menuBar = new wxMenuBar();
+    optionsMenu = new wxMenu();
+    optionsMenu->Append(ID_Settings, "&Settings...\tCtrl-S", "Configure settings");
+    menuBar->Append(optionsMenu, "&Options");
+
+    SetMenuBar(menuBar);
 
     this->Layout();
 }
@@ -55,6 +64,21 @@ void MainWindow::InitializeGrid()
     for (int i = 0; i < settings.gridSize; ++i)
     {
         gameBoard[i].resize(settings.gridSize, false);
+    }
+}
+
+void MainWindow::OnSettings(wxCommandEvent& event)
+{
+    SettingsDialog dialog(this, &settings);
+    if (dialog.ShowModal() == wxID_OK)
+    {
+        InitializeGrid();
+        drawingPanel->SetSettings(&settings);
+        drawingPanel->Refresh();
+
+        if (timer->IsRunning()) {
+            timer->Start(settings.interval);
+        }
     }
 }
 
@@ -143,20 +167,6 @@ void MainWindow::CalculateNextGeneration()
 
     UpdateStatusBar();
     drawingPanel->Refresh();
-}
-
-void MainWindow::OnSettings(wxCommandEvent& event)
-{
-    SettingsDialog dialog(this, &settings);
-    if (dialog.ShowModal() == wxID_OK)
-    {
-        // Apply new settings to the application if needed
-        drawingPanel->Refresh(); // Redraw the panel with new settings
-        // Restart timer if it's running to apply new interval
-        if (timer->IsRunning()) {
-            timer->Start(settings.interval);
-        }
-    }
 }
 
 void MainWindow::OnPlay(wxCommandEvent& event)
