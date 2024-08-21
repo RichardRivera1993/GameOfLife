@@ -9,7 +9,7 @@ EVT_LEFT_UP(DrawingPanel::OnMouseUp)
 wxEND_EVENT_TABLE()
 
 DrawingPanel::DrawingPanel(wxWindow* parent, std::vector<std::vector<bool>>& gameBoard)
-    : wxPanel(parent, wxID_ANY), gameBoard(gameBoard), gridSize(15) // Initialize game board reference
+    : wxPanel(parent, wxID_ANY), gameBoard(gameBoard), settings(nullptr) // Initialize game board reference
 {
     this->SetBackgroundStyle(wxBG_STYLE_PAINT);
 }
@@ -27,8 +27,13 @@ void DrawingPanel::SetSize(const wxSize& size)
 
 void DrawingPanel::SetGridSize(int size)
 {
-    gridSize = size;
+    settings->gridSize = size;;
     Refresh();
+}
+
+void DrawingPanel::SetSettings(Settings* settings)
+{
+    this->settings = settings;
 }
 
 void DrawingPanel::OnPaint(wxPaintEvent& event)
@@ -44,12 +49,12 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
     int panelWidth, panelHeight;
     GetClientSize(&panelWidth, &panelHeight);
 
-    int cellWidth = panelWidth / gridSize;
-    int cellHeight = panelHeight / gridSize;
+    int cellWidth = panelWidth / settings->gridSize;
+    int cellHeight = panelHeight / settings->gridSize;
 
-    for (int row = 0; row < gridSize; row++)
+    for (int row = 0; row < settings->gridSize; row++)
     {
-        for (int col = 0; col < gridSize; col++)
+        for (int col = 0; col < settings->gridSize; col++)
         {
             int x = col * cellWidth;
             int y = row * cellHeight;
@@ -81,13 +86,13 @@ void DrawingPanel::OnMouseUp(wxMouseEvent& event)
     int panelWidth, panelHeight;
     GetClientSize(&panelWidth, &panelHeight);
 
-    int cellWidth = panelWidth / gridSize;
-    int cellHeight = panelHeight / gridSize;
+    int cellWidth = panelWidth / settings->gridSize;
+    int cellHeight = panelHeight / settings->gridSize;
 
     int col = x / cellWidth;
     int row = y / cellHeight;
 
-    if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
+    if (row >= 0 && row < settings->gridSize && col >= 0 && col < settings->gridSize) {
         gameBoard[row][col] = !gameBoard[row][col]; // Toggle the cell's state
         Refresh(); // Trigger a repaint to reflect the change
     }

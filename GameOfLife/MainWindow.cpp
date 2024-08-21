@@ -4,53 +4,40 @@
 #include "next.xpm"
 #include "trash.xpm"
 
-
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 EVT_SIZE(MainWindow::OnSizeChange)
 EVT_MENU(ID_Play, MainWindow::OnPlay)
 EVT_MENU(ID_Pause, MainWindow::OnPause)
 EVT_MENU(ID_Next, MainWindow::OnNext)
 EVT_MENU(ID_Clear, MainWindow::OnClear)
-EVT_TIMER(wxID_ANY, MainWindow::OnTimer) // Bind the timer event
+EVT_TIMER(wxID_ANY, MainWindow::OnTimer)
 wxEND_EVENT_TABLE()
 
 MainWindow::MainWindow(const wxString& title)
     : wxFrame(nullptr, wxID_ANY, title, wxPoint(0, 0), wxSize(400, 400)),
     timer(new wxTimer(this, wxID_ANY))
 {
-    InitializeGrid(); // Initialize the game board
+    InitializeGrid();
 
-    drawingPanel = new DrawingPanel(this, gameBoard); // Initialize DrawingPanel after gameBoard
+    drawingPanel = new DrawingPanel(this, gameBoard);
+    drawingPanel->SetSettings(&settings); // Pass settings to the drawing panel
 
     sizer = new wxBoxSizer(wxVERTICAL);
     sizer->Add(drawingPanel, 1, wxEXPAND | wxALL, 0);
 
     this->SetSizer(sizer);
 
-    // Create the status bar
     statusBar = this->CreateStatusBar();
-    UpdateStatusBar(); // Update status bar with initial values
+    UpdateStatusBar();
 
-    // Create the toolbar
     toolBar = this->CreateToolBar();
-
-    // Add toolbar buttons
-    wxBitmap playIcon(play_xpm);
-    toolBar->AddTool(ID_Play, "Play", playIcon);
-
-    wxBitmap pauseIcon(pause_xpm);
-    toolBar->AddTool(ID_Pause, "Pause", pauseIcon);
-
-    wxBitmap nextIcon(next_xpm);
-    toolBar->AddTool(ID_Next, "Next", nextIcon);
-
-    wxBitmap clearIcon(trash_xpm);
-    toolBar->AddTool(ID_Clear, "Clear", clearIcon);
-
+    toolBar->AddTool(ID_Play, "Play", wxBitmap(play_xpm));
+    toolBar->AddTool(ID_Pause, "Pause", wxBitmap(pause_xpm));
+    toolBar->AddTool(ID_Next, "Next", wxBitmap(next_xpm));
+    toolBar->AddTool(ID_Clear, "Clear", wxBitmap(trash_xpm));
     toolBar->Realize();
 
-
-    this->Layout(); // Ensure the layout includes the status bar and toolbar
+    this->Layout();
 }
 
 MainWindow::~MainWindow()
@@ -63,13 +50,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::InitializeGrid()
 {
-    gameBoard.resize(gridSize);
-    for (int i = 0; i < gridSize; ++i)
+    gameBoard.resize(settings.gridSize);
+    for (int i = 0; i < settings.gridSize; ++i)
     {
-        gameBoard[i].resize(gridSize, false); // Initialize all cells as dead (false)
-    } 
-    if (drawingPanel) {
-        drawingPanel->SetGridSize(gridSize);// Pass the grid size to the DrawingPanel
+        gameBoard[i].resize(settings.gridSize, false);
     }
 }
 
@@ -88,69 +72,19 @@ void MainWindow::UpdateStatusBar()
     statusText.Printf("Generations: %d | Living Cells: %d", generationCount, livingCellsCount);
     statusBar->SetStatusText(statusText);
 }
-// Event handler implementations
-void MainWindow::OnPlay(wxCommandEvent& event)
-{
-    if (timer == nullptr) {
-        wxLogError("Timer is not initialized!");
-        return;
-    }
-    // Start the timer with the interval
-    timer->Start(timerInterval);
-}
-
-void MainWindow::OnPause(wxCommandEvent& event)
-{
-    // Stop the timer
-    timer->Stop();
-}
-
-void MainWindow::OnNext(wxCommandEvent& event)
-{
-    CalculateNextGeneration();  // Advance the game by one generation
-}
-
-void MainWindow::OnClear(wxCommandEvent& event)
-{
-    // Reset the game board to all false (dead cells)
-    for (int row = 0; row < gridSize; ++row)
-    {
-        for (int col = 0; col < gridSize; ++col)
-        {
-            gameBoard[row][col] = false;
-        }
-    }
-
-    // Reset the living cell count and generation count
-    livingCellsCount = 0;
-    generationCount = 0;
-
-    // Update the status bar
-    UpdateStatusBar();
-
-    // Refresh the drawing panel to reflect the cleared board
-    drawingPanel->Refresh();
-}
 
 int MainWindow::CountLivingNeighbors(int row, int col)
 {
     int livingNeighbors = 0;
-
-    // Iterate through the neighboring cells
     for (int i = -1; i <= 1; ++i)
     {
         for (int j = -1; j <= 1; ++j)
         {
-            // Skip the cell itself
-            if (i == 0 && j == 0)
-                continue;
-
+            if (i == 0 && j == 0) continue;
             int neighborRow = row + i;
             int neighborCol = col + j;
-
-            // Check if the neighboring cell is within bounds
-            if (neighborRow >= 0 && neighborRow < gridSize &&
-                neighborCol >= 0 && neighborCol < gridSize)
+            if (neighborRow >= 0 && neighborRow < settings.gridSize &&
+                neighborCol >= 0 && neighborCol < settings.gridSize)
             {
                 if (gameBoard[neighborRow][neighborCol])
                 {
@@ -159,66 +93,90 @@ int MainWindow::CountLivingNeighbors(int row, int col)
             }
         }
     }
-
     return livingNeighbors;
 }
 
 void MainWindow::CalculateNextGeneration()
 {
-    // Create a sandbox that is a copy of the game board
     std::vector<std::vector<bool>> sandbox = gameBoard;
-    sandbox.resize(gridSize);
-    for (int i = 0; i < gridSize; ++i)
+    sandbox.resize(settings.gridSize);
+    for (int i = 0; i < settings.gridSize; ++i)
     {
-        sandbox[i].resize(gridSize, false);
+        sandbox[i].resize(settings.gridSize, false);
     }
 
     int newLivingCellsCount = 0;
 
-    // Iterate through each cell in the game board
-    for (int row = 0; row < gridSize; ++row)
+    for (int row = 0; row < settings.gridSize; ++row)
     {
-        for (int col = 0; col < gridSize; ++col)
+        for (int col = 0; col < settings.gridSize; ++col)
         {
             int livingNeighbors = CountLivingNeighbors(row, col);
-
-            // Apply the rules of the game
-            if (gameBoard[row][col]) // Cell is alive
+            if (gameBoard[row][col])
             {
                 if (livingNeighbors < 2 || livingNeighbors > 3)
                 {
-                    sandbox[row][col] = false; // Cell dies
+                    sandbox[row][col] = false;
                 }
                 else
                 {
-                    sandbox[row][col] = true; // Cell stays alive
+                    sandbox[row][col] = true;
                     ++newLivingCellsCount;
                 }
             }
-            else // Cell is dead
+            else
             {
                 if (livingNeighbors == 3)
                 {
-                    sandbox[row][col] = true; // Cell becomes alive
+                    sandbox[row][col] = true;
                     ++newLivingCellsCount;
                 }
             }
         }
     }
 
-    // Swap the sandbox with the game board to update the cells
     gameBoard.swap(sandbox);
 
-    // Update the living cells count and generation count
     livingCellsCount = newLivingCellsCount;
     ++generationCount;
 
-    // Update the status bar and refresh the drawing panel
     UpdateStatusBar();
     drawingPanel->Refresh();
 }
+
+void MainWindow::OnPlay(wxCommandEvent& event)
+{
+    timer->Start(settings.interval);
+}
+
+void MainWindow::OnPause(wxCommandEvent& event)
+{
+    timer->Stop();
+}
+
+void MainWindow::OnNext(wxCommandEvent& event)
+{
+    CalculateNextGeneration();
+}
+
+void MainWindow::OnClear(wxCommandEvent& event)
+{
+    for (int row = 0; row < settings.gridSize; ++row)
+    {
+        for (int col = 0; col < settings.gridSize; ++col)
+        {
+            gameBoard[row][col] = false;
+        }
+    }
+
+    livingCellsCount = 0;
+    generationCount = 0;
+
+    UpdateStatusBar();
+    drawingPanel->Refresh();
+}
+
 void MainWindow::OnTimer(wxTimerEvent& event)
 {
-    // Call the next generation method whent imer finishes
     CalculateNextGeneration();
 }
