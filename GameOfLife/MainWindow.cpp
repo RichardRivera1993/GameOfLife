@@ -19,6 +19,7 @@ MainWindow::MainWindow(const wxString& title)
     : wxFrame(nullptr, wxID_ANY, title, wxPoint(0, 0), wxSize(400, 400)),
     timer(new wxTimer(this, wxID_ANY))
 {
+    settings.Load(); //load the updated settings when the program starts
     InitializeGrid();
 
     drawingPanel = new DrawingPanel(this, gameBoard);
@@ -70,8 +71,11 @@ void MainWindow::InitializeGrid()
 void MainWindow::OnSettings(wxCommandEvent& event)
 {
     SettingsDialog dialog(this, &settings);
+    Settings oldSettings = settings;// backs up current settings
+
     if (dialog.ShowModal() == wxID_OK)
     {
+        settings.Save();// saves the settings when OK is clicked
         InitializeGrid();
         drawingPanel->SetSettings(&settings);
         drawingPanel->Refresh();
@@ -79,6 +83,10 @@ void MainWindow::OnSettings(wxCommandEvent& event)
         if (timer->IsRunning()) {
             timer->Start(settings.interval);
         }
+    }
+    else
+    {
+        settings = oldSettings; //
     }
 }
 
