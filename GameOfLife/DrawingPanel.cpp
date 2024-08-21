@@ -23,6 +23,12 @@ void DrawingPanel::SetSettings(Settings* settings)
     Refresh();  // Redraw the panel with the new settings
 }
 
+void DrawingPanel::SetNeighborCounts(const std::vector<std::vector<int>>& counts)
+{
+    neighborCounts = counts;
+    Refresh();
+}
+
 void DrawingPanel::SetSize(const wxSize& size)
 {
     wxPanel::SetSize(size);
@@ -68,11 +74,24 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
             }
 
             context->DrawRectangle(x, y, cellWidth, cellHeight);
+
+            // Ensure neighborCounts is properly initialized before accessing it
+            if (settings->showNeighborCount && row < neighborCounts.size() && col < neighborCounts[row].size() && neighborCounts[row][col] > 0)
+            {
+                context->SetFont(wxFontInfo(16), *wxRED);
+                wxString text = wxString::Format("%d", neighborCounts[row][col]);
+                double textWidth, textHeight;
+                context->GetTextExtent(text, &textWidth, &textHeight);
+                double textX = x + (cellWidth - textWidth) / 2;
+                double textY = y + (cellHeight - textHeight) / 2;
+                context->DrawText(text, textX, textY);
+            }
         }
     }
 
     delete context;
 }
+
 
 void DrawingPanel::OnMouseUp(wxMouseEvent& event)
 {

@@ -12,6 +12,7 @@ public:
     void SetSize(const wxSize& size);
     void SetGridSize(int size);
     void SetSettings(Settings* settings); // Setter for settings pointer
+    void SetNeighborCounts(const std::vector<std::vector<int>>& counts); // method to set neighbor counts
 
 private:
     void OnPaint(wxPaintEvent& event);
@@ -19,6 +20,8 @@ private:
 
     std::vector<std::vector<bool>>& gameBoard;
     Settings* settings;
+
+    std::vector<std::vector<int>> neighborCounts;
 
     wxDECLARE_EVENT_TABLE();
 };

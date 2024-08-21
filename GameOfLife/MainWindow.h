@@ -3,6 +3,7 @@
 #include "wx/wx.h"
 #include "DrawingPanel.h"
 #include "Settings.h"
+#include <vector>
 
 enum
 {
@@ -10,7 +11,8 @@ enum
     ID_Pause,
     ID_Next,
     ID_Clear,
-    ID_Settings
+    ID_Settings,
+    ID_ShowNeighborCount
 };
 
 class MainWindow : public wxFrame
@@ -34,6 +36,8 @@ private:
     int livingCellsCount = 0;
     std::vector<std::vector<bool>> gameBoard;
 
+    std::vector<std::vector<int>> neighborCounts;
+
     void InitializeGrid();
     void OnSizeChange(wxSizeEvent& event);
     void UpdateStatusBar();
@@ -46,6 +50,7 @@ private:
     void OnNext(wxCommandEvent& event);
     void OnClear(wxCommandEvent& event);
     void OnSettings(wxCommandEvent& event);
+    void OnToggleShowNeighborCount(wxCommandEvent& event);
 
     void OnTimer(wxTimerEvent& event);
 

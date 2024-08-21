@@ -1,7 +1,7 @@
 #pragma once
 
 #include "wx/wx.h"
-#include <fstream>
+#include <fstream>  // Include for file operations
 
 struct Settings
 {
@@ -17,6 +17,7 @@ struct Settings
 
     int gridSize = 15;
     int interval = 50;
+    bool showNeighborCount = false;  // New option to show neighbor count
 
     wxColor GetLivingCellColor() const
     {
