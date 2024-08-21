@@ -5,6 +5,10 @@
 #include "next.xpm"
 #include "trash.xpm"
 #include <vector>
+#include <cstdlib>
+#include <ctime>
+#include <wx/numdlg.h> // this is for wxGetNumberFromUser
+
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 EVT_SIZE(MainWindow::OnSizeChange)
@@ -14,6 +18,8 @@ EVT_MENU(ID_Next, MainWindow::OnNext)
 EVT_MENU(ID_Clear, MainWindow::OnClear)
 EVT_MENU(ID_Settings, MainWindow::OnSettings)
 EVT_MENU(ID_ShowNeighborCount, MainWindow::OnToggleShowNeighborCount)
+EVT_MENU(ID_Randomize, MainWindow::OnRandomize)
+EVT_MENU(ID_RandomizeWithSeed, MainWindow::OnRandomizeWithSeed)
 EVT_TIMER(wxID_ANY, MainWindow::OnTimer)
 wxEND_EVENT_TABLE()
 
@@ -49,6 +55,8 @@ MainWindow::MainWindow(const wxString& title)
     // Options Menu
     optionsMenu = new wxMenu();
     optionsMenu->Append(ID_Settings, "&Settings...\tCtrl-S", "Configure settings");
+    optionsMenu->Append(ID_Randomize, "&Randomize Grid", "Fill the grid with random cells");
+    optionsMenu->Append(ID_RandomizeWithSeed, "&Randomize Grid with Seed...", "Fill the grid with random cells using a specific seed");
     menuBar->Append(optionsMenu, "&Options");
 
     // View Menu (for Show Neighbor Count)
@@ -109,6 +117,29 @@ void MainWindow::OnToggleShowNeighborCount(wxCommandEvent& event)
     settings.showNeighborCount = !settings.showNeighborCount;
     settings.Save();  // Save the updated setting
     drawingPanel->Refresh();  // Redraw the panel to reflect the new setting
+}
+
+void MainWindow::OnRandomize(wxCommandEvent& event)
+{
+    RandomizeGrid(static_cast<int>(time(NULL)));
+}
+
+void MainWindow::OnRandomizeWithSeed(wxCommandEvent& event)
+{
+    long seed = wxGetNumberFromUser(
+        "Enter a seed value for randomization",
+        "Seed:",
+        "Randomize Grid with Seed",
+        0,         // Default value
+        LONG_MIN,  // Minimum value
+        LONG_MAX,  // Maximum value
+        this
+    );
+
+    if (seed != -1) // -1 is returned if the user cancels
+    {
+        RandomizeGrid(static_cast<int>(seed));
+    }
 }
 
 void MainWindow::OnSizeChange(wxSizeEvent& event)
@@ -213,6 +244,36 @@ void MainWindow::CalculateNextGeneration()
 
     // Pass the neighbor counts to the drawing panel and refresh it
     drawingPanel->SetNeighborCounts(neighborCounts);
+    drawingPanel->Refresh();
+}
+
+void MainWindow::RandomizeGrid(int seed)
+{
+    srand(seed); // Seed the random number generator
+
+    for (int row = 0; row < settings.gridSize; ++row)
+    {
+        for (int col = 0; col < settings.gridSize; ++col)
+        {
+            // Generate a random number and decide if the cell should be alive
+            gameBoard[row][col] = (rand() % 100 < 50); // 50% chance of being alive
+        }
+    }
+
+    livingCellsCount = 0;
+    for (int row = 0; row < settings.gridSize; ++row)
+    {
+        for (int col = 0; col < settings.gridSize; ++col)
+        {
+            if (gameBoard[row][col])
+            {
+                ++livingCellsCount;
+            }
+        }
+    }
+
+    generationCount = 0;
+    UpdateStatusBar();
     drawingPanel->Refresh();
 }
 

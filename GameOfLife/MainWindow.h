@@ -12,7 +12,9 @@ enum
     ID_Next,
     ID_Clear,
     ID_Settings,
-    ID_ShowNeighborCount
+    ID_ShowNeighborCount,
+    ID_Randomize,
+    ID_RandomizeWithSeed
 };
 
 class MainWindow : public wxFrame
@@ -43,6 +45,7 @@ private:
     void UpdateStatusBar();
     int CountLivingNeighbors(int row, int col);
     void CalculateNextGeneration();
+    void RandomizeGrid(int seed);
 
     // Event handlers for toolbar buttons and menu items
     void OnPlay(wxCommandEvent& event);
@@ -51,6 +54,9 @@ private:
     void OnClear(wxCommandEvent& event);
     void OnSettings(wxCommandEvent& event);
     void OnToggleShowNeighborCount(wxCommandEvent& event);
+    void OnRandomize(wxCommandEvent& event);
+    void OnRandomizeWithSeed(wxCommandEvent& event);
+
 
     void OnTimer(wxTimerEvent& event);
 
