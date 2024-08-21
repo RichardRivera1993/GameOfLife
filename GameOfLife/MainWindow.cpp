@@ -3,6 +3,7 @@
 #include "pause.xpm"
 #include "next.xpm"
 #include "trash.xpm"
+#include "SettingsDialog.h"
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 EVT_SIZE(MainWindow::OnSizeChange)
@@ -142,6 +143,20 @@ void MainWindow::CalculateNextGeneration()
 
     UpdateStatusBar();
     drawingPanel->Refresh();
+}
+
+void MainWindow::OnSettings(wxCommandEvent& event)
+{
+    SettingsDialog dialog(this, &settings);
+    if (dialog.ShowModal() == wxID_OK)
+    {
+        // Apply new settings to the application if needed
+        drawingPanel->Refresh(); // Redraw the panel with new settings
+        // Restart timer if it's running to apply new interval
+        if (timer->IsRunning()) {
+            timer->Start(settings.interval);
+        }
+    }
 }
 
 void MainWindow::OnPlay(wxCommandEvent& event)

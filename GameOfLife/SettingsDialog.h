@@ -1,0 +1,25 @@
+#pragma once
+#include "wx/wx.h"
+#include "wx/spinctrl.h"
+#include "wx/clrpicker.h"
+#include "Settings.h"
+
+class SettingsDialog : public wxDialog
+{
+public:
+    SettingsDialog(wxWindow* parent, Settings* settings);
+    virtual ~SettingsDialog() {}
+
+private:
+    Settings* settings; // Pointer to the settings object
+
+    wxSpinCtrl* gridSizeCtrl;
+    wxSpinCtrl* intervalCtrl;
+    wxColourPickerCtrl* livingCellColorPicker;
+    wxColourPickerCtrl* deadCellColorPicker;
+
+    void OnOk(wxCommandEvent& event);
+    void OnCancel(wxCommandEvent& event);
+
+    wxDECLARE_EVENT_TABLE();
+};
