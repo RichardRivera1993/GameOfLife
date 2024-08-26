@@ -1,10 +1,11 @@
 #pragma once
 
 #include "wx/wx.h"
-#include <fstream>  // Include for file operations
+#include <fstream>
 
 struct Settings
 {
+    // Existing color and grid size settings
     unsigned int livingCellRed = 128;
     unsigned int livingCellGreen = 128;
     unsigned int livingCellBlue = 128;
@@ -17,31 +18,13 @@ struct Settings
 
     int gridSize = 15;
     int interval = 50;
-    bool showNeighborCount = false;  // New option to show neighbor count
-    bool isToroidal = false; //Defaults to finite
-    bool showGrid = true;  // New setting for grid visibility
-    bool showThickGrid = false;  // New setting for 10x10 grid lines
 
-    // Method to reset settings to default
-    void ResetToDefault()
-    {
-        livingCellRed = 128;
-        livingCellGreen = 128;
-        livingCellBlue = 128;
-        livingCellAlpha = 255;
-
-        deadCellRed = 255;
-        deadCellGreen = 255;
-        deadCellBlue = 255;
-        deadCellAlpha = 255;
-
-        gridSize = 15;
-        interval = 500;
-        showNeighborCount = false;
-        isToroidal = false;
-
-        Save(); // Save the default settings to the file
-    }
+    // New settings for boundary type, grid, and HUD
+    bool isToroidal = false;
+    bool showGrid = true;
+    bool showThickGrid = false;
+    bool showHUD = false;
+    bool showNeighborCount = false;
 
     wxColor GetLivingCellColor() const
     {
@@ -69,7 +52,30 @@ struct Settings
         deadCellAlpha = color.Alpha();
     }
 
-    // Method to load settings from a file
+    // Method to reset all settings to their default values
+    void ResetToDefault()
+    {
+        livingCellRed = 128;
+        livingCellGreen = 128;
+        livingCellBlue = 128;
+        livingCellAlpha = 255;
+
+        deadCellRed = 255;
+        deadCellGreen = 255;
+        deadCellBlue = 255;
+        deadCellAlpha = 255;
+
+        gridSize = 15;
+        interval = 50;
+
+        isToroidal = false;
+        showGrid = true;
+        showThickGrid = false;
+        showHUD = false;
+        showNeighborCount = false;
+    }
+
+    // Method to load settings from file
     void Load()
     {
         std::ifstream file("settings.bin", std::ios::binary | std::ios::in);
@@ -80,7 +86,7 @@ struct Settings
         }
     }
 
-    // Method to save settings to a file
+    // Method to save settings to file
     void Save() const
     {
         std::ofstream file("settings.bin", std::ios::out | std::ios::binary);
@@ -90,5 +96,4 @@ struct Settings
             file.close();
         }
     }
-
 };

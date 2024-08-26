@@ -33,6 +33,7 @@ EVT_MENU(ID_ResetSettings, MainWindow::OnResetSettings)
 EVT_MENU(ID_Import, MainWindow::OnImport)
 EVT_MENU(ID_ShowGrid, MainWindow::OnToggleShowGrid)
 EVT_MENU(ID_ShowThickGrid, MainWindow::OnToggleShowThickGrid)
+EVT_MENU(ID_ShowHUD, MainWindow::OnToggleShowHUD)
 EVT_TIMER(wxID_ANY, MainWindow::OnTimer)
 wxEND_EVENT_TABLE()
 
@@ -44,7 +45,7 @@ MainWindow::MainWindow(const wxString& title)
     settings.Load();  // Load settings when the program starts
     InitializeGrid();
 
-    drawingPanel = new DrawingPanel(this, gameBoard);
+    drawingPanel = new DrawingPanel(this,this, gameBoard);
     drawingPanel->SetSettings(&settings);
 
     sizer = new wxBoxSizer(wxVERTICAL);
@@ -97,6 +98,9 @@ MainWindow::MainWindow(const wxString& title)
     viewMenu->AppendCheckItem(ID_ShowThickGrid, "Show 10x10 Grid", "Show thicker grid lines every 10 cells");
     viewMenu->Check(ID_ShowThickGrid, settings.showThickGrid);
 
+    viewMenu->AppendCheckItem(ID_ShowHUD, "Show HUD", "Display the heads up display");
+    viewMenu->Check(ID_ShowHUD, settings.showHUD);  // Set initial check state
+
     // Add Finite and Toroidal options
     finiteItem = new wxMenuItem(viewMenu, ID_Finite, "Finite", "", wxITEM_CHECK);
     toroidalItem = new wxMenuItem(viewMenu, ID_Toroidal, "Toroidal", "", wxITEM_CHECK);
@@ -111,7 +115,7 @@ MainWindow::MainWindow(const wxString& title)
 
     // Set the menu bar
     SetMenuBar(menuBar);
-
+    this->SetSizer(sizer);
     this->Layout();
 }
 
@@ -407,6 +411,14 @@ void MainWindow::OnOpen(wxCommandEvent& event)
         }
     }
 
+    for (int row = 0; row < settings.gridSize; ++row)
+    {
+        for (int col = 0; col < settings.gridSize; ++col)
+        {
+            gameBoard[row][col] = false;
+        }
+    }
+
     int newGridSize = fileContents.size();
     settings.gridSize = newGridSize;
     InitializeGrid();
@@ -585,4 +597,21 @@ void MainWindow::OnToggleShowThickGrid(wxCommandEvent& event)
     settings.showThickGrid = !settings.showThickGrid;
     settings.Save();  // Save the updated setting
     drawingPanel->Refresh();  // Redraw the panel to reflect the new setting
+}
+
+void MainWindow::OnToggleShowHUD(wxCommandEvent& event)
+{
+    settings.showHUD = !settings.showHUD;  // Toggle the HUD setting
+    settings.Save();  // Save the updated setting
+    drawingPanel->Refresh();  // Redraw the panel to reflect the new setting
+}
+
+int MainWindow::GetGenerationCount() const
+{
+    return generationCount;
+}
+
+int MainWindow::GetLivingCellsCount() const
+{
+    return livingCellsCount;
 }

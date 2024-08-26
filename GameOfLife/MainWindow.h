@@ -15,17 +15,18 @@ enum
     ID_ShowNeighborCount,
     ID_Randomize,
     ID_RandomizeWithSeed,
-    ID_New,             // New ID for New option
-    ID_Open,            // New ID for Open option
-    ID_Save,            // New ID for Save option
-    ID_SaveAs,          // New ID for Save As option
-    ID_Exit,             // New ID for Exit option
+    ID_New,
+    ID_Open,
+    ID_Save,
+    ID_SaveAs,
+    ID_Exit,
     ID_Finite,
     ID_Toroidal,
     ID_ResetSettings,
     ID_Import,
     ID_ShowGrid,
-    ID_ShowThickGrid
+    ID_ShowThickGrid,
+    ID_ShowHUD
 };
 
 class MainWindow : public wxFrame
@@ -33,7 +34,8 @@ class MainWindow : public wxFrame
 public:
     MainWindow(const wxString& title);
     virtual ~MainWindow();
-
+    int GetGenerationCount() const;
+    int GetLivingCellsCount() const;
 private:
     DrawingPanel* drawingPanel;
     wxBoxSizer* sizer;
@@ -41,12 +43,10 @@ private:
     wxToolBar* toolBar;
     wxMenuBar* menuBar;
     wxMenu* optionsMenu;
-    wxMenuItem* finiteItem;
-    wxMenuItem* toroidalItem;
 
     wxTimer* timer;
     Settings settings;
-    wxString currentFileName; //store the current file name
+    wxString currentFileName; // Store the current file name
 
     int generationCount = 0;
     int livingCellsCount = 0;
@@ -54,12 +54,16 @@ private:
 
     std::vector<std::vector<int>> neighborCounts;
 
+    wxMenuItem* finiteItem;
+    wxMenuItem* toroidalItem;
+
     void InitializeGrid();
     void OnSizeChange(wxSizeEvent& event);
     void UpdateStatusBar();
     int CountLivingNeighbors(int row, int col);
     void CalculateNextGeneration();
     void RandomizeGrid(int seed);
+    void OnTimer(wxTimerEvent& event);
 
     // Event handlers for toolbar buttons and menu items
     void OnPlay(wxCommandEvent& event);
@@ -75,16 +79,16 @@ private:
     void OnSave(wxCommandEvent& event);
     void OnSaveAs(wxCommandEvent& event);
     void OnExit(wxCommandEvent& event);
+    void SaveToFile(const wxString& fileName);
+
+    // View menu handlers
     void OnFinite(wxCommandEvent& event);
     void OnToroidal(wxCommandEvent& event);
-    void SaveToFile(const wxString& fileName);
     void OnResetSettings(wxCommandEvent& event);
-    void OnImport(wxCommandEvent& event); 
-
-    void OnToggleShowGrid(wxCommandEvent& event);        // Handler for Show Grid menu item
-    void OnToggleShowThickGrid(wxCommandEvent& event);   // Handler for Show 10x10 Grid menu item
-
-    void OnTimer(wxTimerEvent& event);
+    void OnImport(wxCommandEvent& event);
+    void OnToggleShowGrid(wxCommandEvent& event);
+    void OnToggleShowThickGrid(wxCommandEvent& event);
+    void OnToggleShowHUD(wxCommandEvent& event);
 
     wxDECLARE_EVENT_TABLE();
 };
