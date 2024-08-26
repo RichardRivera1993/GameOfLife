@@ -18,6 +18,28 @@ struct Settings
     int gridSize = 15;
     int interval = 50;
     bool showNeighborCount = false;  // New option to show neighbor count
+    bool isToroidal = false; //Defaults to finite
+
+    // Method to reset settings to default
+    void ResetToDefault()
+    {
+        livingCellRed = 128;
+        livingCellGreen = 128;
+        livingCellBlue = 128;
+        livingCellAlpha = 255;
+
+        deadCellRed = 255;
+        deadCellGreen = 255;
+        deadCellBlue = 255;
+        deadCellAlpha = 255;
+
+        gridSize = 15;
+        interval = 500;
+        showNeighborCount = false;
+        isToroidal = false;
+
+        Save(); // Save the default settings to the file
+    }
 
     wxColor GetLivingCellColor() const
     {
@@ -66,5 +88,5 @@ struct Settings
             file.close();
         }
     }
-    bool isToroidal = false; //Defaults to finite
+
 };

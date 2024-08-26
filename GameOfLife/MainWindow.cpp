@@ -29,6 +29,7 @@ EVT_MENU(ID_SaveAs, MainWindow::OnSaveAs)
 EVT_MENU(ID_Exit, MainWindow::OnExit)
 EVT_MENU(ID_Finite, MainWindow::OnFinite)
 EVT_MENU(ID_Toroidal, MainWindow::OnToroidal)
+EVT_MENU(ID_ResetSettings, MainWindow::OnResetSettings)
 EVT_TIMER(wxID_ANY, MainWindow::OnTimer)
 wxEND_EVENT_TABLE()
 
@@ -78,6 +79,7 @@ MainWindow::MainWindow(const wxString& title)
     optionsMenu->Append(ID_Settings, "&Settings...\tCtrl-S", "Configure settings");
     optionsMenu->Append(ID_Randomize, "&Randomize Grid", "Fill the grid with random cells");
     optionsMenu->Append(ID_RandomizeWithSeed, "&Randomize Grid with Seed...", "Fill the grid with random cells using a specific seed");
+    optionsMenu->Append(ID_ResetSettings, "&Reset Settings", "Reset all settings to default");
     menuBar->Append(optionsMenu, "&Options");
 
     // View Menu 
@@ -488,3 +490,15 @@ void MainWindow::OnToroidal(wxCommandEvent& event)
     drawingPanel->Refresh();
 }
 
+void MainWindow::OnResetSettings(wxCommandEvent& event)
+{
+    settings.ResetToDefault();  // Reset all settings to default
+
+    InitializeGrid();  // Re-initialize the grid with default settings
+    drawingPanel->SetSettings(&settings);
+    drawingPanel->Refresh();  // Refresh the drawing panel
+
+    // Update the View menu items to reflect the default settings
+    finiteItem->Check(!settings.isToroidal);
+    toroidalItem->Check(settings.isToroidal);
+}

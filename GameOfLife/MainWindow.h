@@ -21,7 +21,8 @@ enum
     ID_SaveAs,          // New ID for Save As option
     ID_Exit,             // New ID for Exit option
     ID_Finite,
-    ID_Toroidal
+    ID_Toroidal,
+    ID_ResetSettings
 };
 
 class MainWindow : public wxFrame
@@ -73,8 +74,9 @@ private:
     void OnExit(wxCommandEvent& event);
     void OnFinite(wxCommandEvent& event);
     void OnToroidal(wxCommandEvent& event);
-
     void SaveToFile(const wxString& fileName);
+
+    void OnResetSettings(wxCommandEvent& event); // new handler event
 
     void OnTimer(wxTimerEvent& event);
 
