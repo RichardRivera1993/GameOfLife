@@ -19,7 +19,9 @@ enum
     ID_Open,            // New ID for Open option
     ID_Save,            // New ID for Save option
     ID_SaveAs,          // New ID for Save As option
-    ID_Exit             // New ID for Exit option
+    ID_Exit,             // New ID for Exit option
+    ID_Finite,
+    ID_Toroidal
 };
 
 class MainWindow : public wxFrame
@@ -35,6 +37,8 @@ private:
     wxToolBar* toolBar;
     wxMenuBar* menuBar;
     wxMenu* optionsMenu;
+    wxMenuItem* finiteItem;
+    wxMenuItem* toroidalItem;
 
     wxTimer* timer;
     Settings settings;
@@ -67,6 +71,8 @@ private:
     void OnSave(wxCommandEvent& event);
     void OnSaveAs(wxCommandEvent& event);
     void OnExit(wxCommandEvent& event);
+    void OnFinite(wxCommandEvent& event);
+    void OnToroidal(wxCommandEvent& event);
 
     void SaveToFile(const wxString& fileName);
 

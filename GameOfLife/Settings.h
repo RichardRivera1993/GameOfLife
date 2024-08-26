@@ -66,4 +66,5 @@ struct Settings
             file.close();
         }
     }
+    bool isToroidal = false; //Defaults to finite
 };

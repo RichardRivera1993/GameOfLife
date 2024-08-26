@@ -27,6 +27,8 @@ EVT_MENU(ID_Open, MainWindow::OnOpen)
 EVT_MENU(ID_Save, MainWindow::OnSave)
 EVT_MENU(ID_SaveAs, MainWindow::OnSaveAs)
 EVT_MENU(ID_Exit, MainWindow::OnExit)
+EVT_MENU(ID_Finite, MainWindow::OnFinite)
+EVT_MENU(ID_Toroidal, MainWindow::OnToroidal)
 EVT_TIMER(wxID_ANY, MainWindow::OnTimer)
 wxEND_EVENT_TABLE()
 
@@ -78,10 +80,21 @@ MainWindow::MainWindow(const wxString& title)
     optionsMenu->Append(ID_RandomizeWithSeed, "&Randomize Grid with Seed...", "Fill the grid with random cells using a specific seed");
     menuBar->Append(optionsMenu, "&Options");
 
-    // View Menu (for Show Neighbor Count)
+    // View Menu 
     wxMenu* viewMenu = new wxMenu();
     viewMenu->AppendCheckItem(ID_ShowNeighborCount, "Show Neighbor Count", "Show number of living neighbors");
     viewMenu->Check(ID_ShowNeighborCount, settings.showNeighborCount);  // Set initial check state
+
+    // Add Finite and Toroidal options
+    finiteItem = new wxMenuItem(viewMenu, ID_Finite, "Finite", "", wxITEM_CHECK);
+    toroidalItem = new wxMenuItem(viewMenu, ID_Toroidal, "Toroidal", "", wxITEM_CHECK);
+
+    viewMenu->Append(finiteItem);
+    viewMenu->Append(toroidalItem);
+
+    finiteItem->Check(!settings.isToroidal);
+    toroidalItem->Check(settings.isToroidal);
+
     menuBar->Append(viewMenu, "&View");
 
     // Set the menu bar
@@ -185,15 +198,31 @@ int MainWindow::CountLivingNeighbors(int row, int col)
         for (int j = -1; j <= 1; ++j)
         {
             if (i == 0 && j == 0) continue;
+
             int neighborRow = row + i;
             int neighborCol = col + j;
-            if (neighborRow >= 0 && neighborRow < settings.gridSize &&
-                neighborCol >= 0 && neighborCol < settings.gridSize)
+
+            if (settings.isToroidal)
             {
-                if (gameBoard[neighborRow][neighborCol])
+                // Wrap around if out of bounds
+                if (neighborRow < 0) neighborRow = settings.gridSize - 1;
+                if (neighborRow >= settings.gridSize) neighborRow = 0;
+                if (neighborCol < 0) neighborCol = settings.gridSize - 1;
+                if (neighborCol >= settings.gridSize) neighborCol = 0;
+            }
+            else
+            {
+                // Skip out-of-bounds indices for finite universe
+                if (neighborRow < 0 || neighborRow >= settings.gridSize ||
+                    neighborCol < 0 || neighborCol >= settings.gridSize)
                 {
-                    ++livingNeighbors;
+                    continue;
                 }
+            }
+
+            if (gameBoard[neighborRow][neighborCol])
+            {
+                ++livingNeighbors;
             }
         }
     }
@@ -439,3 +468,23 @@ void MainWindow::SaveToFile(const wxString& fileName)
     file.Write();
     file.Close();
 }
+// In MainWindow.cpp
+
+void MainWindow::OnFinite(wxCommandEvent& event)
+{
+    settings.isToroidal = false;
+    finiteItem->Check(true);
+    toroidalItem->Check(false);
+    settings.Save();
+    drawingPanel->Refresh();
+}
+
+void MainWindow::OnToroidal(wxCommandEvent& event)
+{
+    settings.isToroidal = true;
+    finiteItem->Check(false);
+    toroidalItem->Check(true);
+    settings.Save();
+    drawingPanel->Refresh();
+}
+
