@@ -23,7 +23,9 @@ enum
     ID_Finite,
     ID_Toroidal,
     ID_ResetSettings,
-    ID_Import
+    ID_Import,
+    ID_ShowGrid,
+    ID_ShowThickGrid
 };
 
 class MainWindow : public wxFrame
@@ -77,7 +79,10 @@ private:
     void OnToroidal(wxCommandEvent& event);
     void SaveToFile(const wxString& fileName);
     void OnResetSettings(wxCommandEvent& event);
-    void OnImport(wxCommandEvent& event); // new event handler
+    void OnImport(wxCommandEvent& event); 
+
+    void OnToggleShowGrid(wxCommandEvent& event);        // Handler for Show Grid menu item
+    void OnToggleShowThickGrid(wxCommandEvent& event);   // Handler for Show 10x10 Grid menu item
 
     void OnTimer(wxTimerEvent& event);
 

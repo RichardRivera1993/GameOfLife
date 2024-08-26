@@ -19,6 +19,8 @@ struct Settings
     int interval = 50;
     bool showNeighborCount = false;  // New option to show neighbor count
     bool isToroidal = false; //Defaults to finite
+    bool showGrid = true;  // New setting for grid visibility
+    bool showThickGrid = false;  // New setting for 10x10 grid lines
 
     // Method to reset settings to default
     void ResetToDefault()

@@ -49,14 +49,52 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
     wxGraphicsContext* context = wxGraphicsContext::Create(dc);
     if (!context) return;
 
-    context->SetPen(*wxBLACK);
-
     int panelWidth, panelHeight;
     GetClientSize(&panelWidth, &panelHeight);
 
     int cellWidth = panelWidth / settings->gridSize;
     int cellHeight = panelHeight / settings->gridSize;
 
+    // Set grid visibility
+    if (settings->showGrid)
+    {
+        context->SetPen(wxPen(wxColor(0, 0, 0, 64)));  // Light gray grid
+    }
+    else
+    {
+        context->SetPen(wxPen(wxTransparentColor));
+    }
+
+    // Draw the grid
+    for (int row = 0; row <= settings->gridSize; ++row)
+    {
+        int y = row * cellHeight;
+        context->StrokeLine(0, y, panelWidth, y);
+    }
+
+    for (int col = 0; col <= settings->gridSize; ++col)
+    {
+        int x = col * cellWidth;
+        context->StrokeLine(x, 0, x, panelHeight);
+    }
+
+    // Draw thicker 10x10 grid lines
+    if (settings->showThickGrid)
+    {
+        dc.SetPen(wxPen(*wxBLACK, 2));  // Thicker black lines
+
+        int numThickLines = settings->gridSize / 10;
+        for (int i = 1; i <= numThickLines; ++i)
+        {
+            int x = i * 10 * cellWidth;
+            int y = i * 10 * cellHeight;
+
+            dc.DrawLine(x, 0, x, panelHeight);  // Vertical line
+            dc.DrawLine(0, y, panelWidth, y);  // Horizontal line
+        }
+    }
+
+    // Draw the cells and neighbor counts (existing logic)
     for (int row = 0; row < settings->gridSize; ++row)
     {
         for (int col = 0; col < settings->gridSize; ++col)
@@ -75,8 +113,7 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
 
             context->DrawRectangle(x, y, cellWidth, cellHeight);
 
-            // Ensure neighborCounts is properly initialized before accessing it
-            if (settings->showNeighborCount && row < neighborCounts.size() && col < neighborCounts[row].size() && neighborCounts[row][col] > 0)
+            if (settings->showNeighborCount && neighborCounts[row][col] > 0)
             {
                 context->SetFont(wxFontInfo(16), *wxRED);
                 wxString text = wxString::Format("%d", neighborCounts[row][col]);
@@ -91,6 +128,7 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
 
     delete context;
 }
+
 
 
 void DrawingPanel::OnMouseUp(wxMouseEvent& event)

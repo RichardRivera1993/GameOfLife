@@ -31,6 +31,8 @@ EVT_MENU(ID_Finite, MainWindow::OnFinite)
 EVT_MENU(ID_Toroidal, MainWindow::OnToroidal)
 EVT_MENU(ID_ResetSettings, MainWindow::OnResetSettings)
 EVT_MENU(ID_Import, MainWindow::OnImport)
+EVT_MENU(ID_ShowGrid, MainWindow::OnToggleShowGrid)
+EVT_MENU(ID_ShowThickGrid, MainWindow::OnToggleShowThickGrid)
 EVT_TIMER(wxID_ANY, MainWindow::OnTimer)
 wxEND_EVENT_TABLE()
 
@@ -88,6 +90,12 @@ MainWindow::MainWindow(const wxString& title)
     wxMenu* viewMenu = new wxMenu();
     viewMenu->AppendCheckItem(ID_ShowNeighborCount, "Show Neighbor Count", "Show number of living neighbors");
     viewMenu->Check(ID_ShowNeighborCount, settings.showNeighborCount);  // Set initial check state
+
+    viewMenu->AppendCheckItem(ID_ShowGrid, "Show Grid", "Show the grid lines");
+    viewMenu->Check(ID_ShowGrid, settings.showGrid);
+
+    viewMenu->AppendCheckItem(ID_ShowThickGrid, "Show 10x10 Grid", "Show thicker grid lines every 10 cells");
+    viewMenu->Check(ID_ShowThickGrid, settings.showThickGrid);
 
     // Add Finite and Toroidal options
     finiteItem = new wxMenuItem(viewMenu, ID_Finite, "Finite", "", wxITEM_CHECK);
@@ -563,4 +571,18 @@ void MainWindow::OnImport(wxCommandEvent& event)
     }
 
     drawingPanel->Refresh();
+}
+
+void MainWindow::OnToggleShowGrid(wxCommandEvent& event)
+{
+    settings.showGrid = !settings.showGrid;
+    settings.Save();  // Save the updated setting
+    drawingPanel->Refresh();  // Redraw the panel to reflect the new setting
+}
+
+void MainWindow::OnToggleShowThickGrid(wxCommandEvent& event)
+{
+    settings.showThickGrid = !settings.showThickGrid;
+    settings.Save();  // Save the updated setting
+    drawingPanel->Refresh();  // Redraw the panel to reflect the new setting
 }
