@@ -30,6 +30,7 @@ EVT_MENU(ID_Exit, MainWindow::OnExit)
 EVT_MENU(ID_Finite, MainWindow::OnFinite)
 EVT_MENU(ID_Toroidal, MainWindow::OnToroidal)
 EVT_MENU(ID_ResetSettings, MainWindow::OnResetSettings)
+EVT_MENU(ID_Import, MainWindow::OnImport)
 EVT_TIMER(wxID_ANY, MainWindow::OnTimer)
 wxEND_EVENT_TABLE()
 
@@ -67,6 +68,7 @@ MainWindow::MainWindow(const wxString& title)
     wxMenu* fileMenu = new wxMenu();
     fileMenu->Append(ID_New, "&New\tCtrl-N", "Clear the grid and start a new game");
     fileMenu->Append(ID_Open, "&Open...\tCtrl-O", "Open an existing game board");
+    fileMenu->Append(ID_Import, "&Import...\tCtrl-I", "Import an existing game board");
     fileMenu->Append(ID_Save, "&Save\tCtrl-S", "Save the current game board");
     fileMenu->Append(ID_SaveAs, "Save &As...\tCtrl-Shift-S", "Save the current game board under a new name");
     fileMenu->AppendSeparator();
@@ -501,4 +503,64 @@ void MainWindow::OnResetSettings(wxCommandEvent& event)
     // Update the View menu items to reflect the default settings
     finiteItem->Check(!settings.isToroidal);
     toroidalItem->Check(settings.isToroidal);
+}
+
+void MainWindow::OnImport(wxCommandEvent& event)
+{
+    wxFileDialog importFileDialog(this, "Import Game Board", "", "",
+        "Cells files (*.cells)|*.cells", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+    if (importFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxTextFile file(importFileDialog.GetPath());
+    if (!file.Open())
+        return;
+
+    std::vector<wxString> fileContents;
+
+    for (size_t i = 0; i < file.GetLineCount(); i++)
+    {
+        wxString line = file.GetLine(i);
+        if (!line.StartsWith("!")) // Ignore comment lines
+        {
+            fileContents.push_back(line);
+        }
+    }
+
+    int patternHeight = fileContents.size();
+    int patternWidth = fileContents.empty() ? 0 : fileContents[0].size();
+
+    // Ensure the pattern fits within the current grid size
+    if (patternHeight > settings.gridSize || patternWidth > settings.gridSize)
+    {
+        wxMessageBox("The pattern is too large to fit on the current grid.", "Import Error", wxOK | wxICON_ERROR);
+        return;
+    }
+
+    int startRow = (settings.gridSize - patternHeight) / 2;
+    int startCol = (settings.gridSize - patternWidth) / 2;
+
+    // Clear the current grid before importing
+    for (int row = 0; row < settings.gridSize; ++row)
+    {
+        for (int col = 0; col < settings.gridSize; ++col)
+        {
+            gameBoard[row][col] = false;
+        }
+    }
+
+    // Import pattern without resizing the grid
+    for (int row = 0; row < patternHeight; ++row)
+    {
+        for (int col = 0; col < patternWidth; ++col)
+        {
+            if (startRow + row < settings.gridSize && startCol + col < settings.gridSize)
+            {
+                gameBoard[startRow + row][startCol + col] = (fileContents[row][col] == '*');
+            }
+        }
+    }
+
+    drawingPanel->Refresh();
 }
