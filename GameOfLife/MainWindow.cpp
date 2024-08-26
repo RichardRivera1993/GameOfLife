@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <wx/numdlg.h> // this is for wxGetNumberFromUser
+#include <wx/filedlg.h>
+#include <wx/textfile.h>
 
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
@@ -20,8 +22,14 @@ EVT_MENU(ID_Settings, MainWindow::OnSettings)
 EVT_MENU(ID_ShowNeighborCount, MainWindow::OnToggleShowNeighborCount)
 EVT_MENU(ID_Randomize, MainWindow::OnRandomize)
 EVT_MENU(ID_RandomizeWithSeed, MainWindow::OnRandomizeWithSeed)
+EVT_MENU(ID_New, MainWindow::OnNew)
+EVT_MENU(ID_Open, MainWindow::OnOpen)
+EVT_MENU(ID_Save, MainWindow::OnSave)
+EVT_MENU(ID_SaveAs, MainWindow::OnSaveAs)
+EVT_MENU(ID_Exit, MainWindow::OnExit)
 EVT_TIMER(wxID_ANY, MainWindow::OnTimer)
 wxEND_EVENT_TABLE()
+
 
 MainWindow::MainWindow(const wxString& title)
     : wxFrame(nullptr, wxID_ANY, title, wxPoint(0, 0), wxSize(400, 400)),
@@ -51,6 +59,17 @@ MainWindow::MainWindow(const wxString& title)
 
     // Create and configure the menu bar
     menuBar = new wxMenuBar();
+
+    // File Menu
+    wxMenu* fileMenu = new wxMenu();
+    fileMenu->Append(ID_New, "&New\tCtrl-N", "Clear the grid and start a new game");
+    fileMenu->Append(ID_Open, "&Open...\tCtrl-O", "Open an existing game board");
+    fileMenu->Append(ID_Save, "&Save\tCtrl-S", "Save the current game board");
+    fileMenu->Append(ID_SaveAs, "Save &As...\tCtrl-Shift-S", "Save the current game board under a new name");
+    fileMenu->AppendSeparator();
+    fileMenu->Append(ID_Exit, "E&xit", "Exit the application");
+
+    menuBar->Append(fileMenu, "&File");
 
     // Options Menu
     optionsMenu = new wxMenu();
@@ -313,4 +332,110 @@ void MainWindow::OnClear(wxCommandEvent& event)
 void MainWindow::OnTimer(wxTimerEvent& event)
 {
     CalculateNextGeneration();
+}
+
+void MainWindow::OnNew(wxCommandEvent& event)
+{
+    InitializeGrid();  // Clear the game board
+    currentFileName.clear();  // Clear the current file name
+    drawingPanel->Refresh();  // Refresh the drawing panel
+}
+
+
+void MainWindow::OnOpen(wxCommandEvent& event)
+{
+    wxFileDialog openFileDialog(this, "Open Game Board", "", "",
+        "Cells files (*.cells)|*.cells", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+    if (openFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxTextFile file(openFileDialog.GetPath());
+    if (!file.Open())
+        return;
+
+    currentFileName = openFileDialog.GetPath();
+    std::vector<wxString> fileContents;
+
+    for (size_t i = 0; i < file.GetLineCount(); i++)
+    {
+        wxString line = file.GetLine(i);
+        if (!line.StartsWith("!")) // Ignore comment lines
+        {
+            fileContents.push_back(line);
+        }
+    }
+
+    int newGridSize = fileContents.size();
+    settings.gridSize = newGridSize;
+    InitializeGrid();
+
+    for (int row = 0; row < newGridSize; ++row)
+    {
+        for (int col = 0; col < newGridSize; ++col)
+        {
+            if (col < fileContents[row].size() && fileContents[row][col] == '*')
+            {
+                gameBoard[row][col] = true;
+            }
+        }
+    }
+
+    drawingPanel->Refresh();
+}
+
+void MainWindow::OnSaveAs(wxCommandEvent& event)
+{
+    wxFileDialog saveFileDialog(this, "Save Game Board", "", "",
+        "Cells files (*.cells)|*.cells", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+    if (saveFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    currentFileName = saveFileDialog.GetPath();
+    SaveToFile(currentFileName);
+}
+
+void MainWindow::OnSave(wxCommandEvent& event)
+{
+    if (currentFileName.empty())
+    {
+        OnSaveAs(event);
+    }
+    else
+    {
+        SaveToFile(currentFileName);
+    }
+}
+
+void MainWindow::OnExit(wxCommandEvent& event)
+{
+    Close(true);
+}
+
+void MainWindow::SaveToFile(const wxString& fileName)
+{
+    wxTextFile file;
+    if (wxFile::Exists(fileName))
+    {
+        file.Open(fileName);
+        file.Clear();
+    }
+    else
+    {
+        file.Create(fileName);
+    }
+
+    for (int row = 0; row < settings.gridSize; ++row)
+    {
+        wxString line;
+        for (int col = 0; col < settings.gridSize; ++col)
+        {
+            line += gameBoard[row][col] ? '*' : '.';
+        }
+        file.AddLine(line);
+    }
+
+    file.Write();
+    file.Close();
 }

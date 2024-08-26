@@ -14,7 +14,12 @@ enum
     ID_Settings,
     ID_ShowNeighborCount,
     ID_Randomize,
-    ID_RandomizeWithSeed
+    ID_RandomizeWithSeed,
+    ID_New,             // New ID for New option
+    ID_Open,            // New ID for Open option
+    ID_Save,            // New ID for Save option
+    ID_SaveAs,          // New ID for Save As option
+    ID_Exit             // New ID for Exit option
 };
 
 class MainWindow : public wxFrame
@@ -33,6 +38,7 @@ private:
 
     wxTimer* timer;
     Settings settings;
+    wxString currentFileName; //store the current file name
 
     int generationCount = 0;
     int livingCellsCount = 0;
@@ -56,7 +62,13 @@ private:
     void OnToggleShowNeighborCount(wxCommandEvent& event);
     void OnRandomize(wxCommandEvent& event);
     void OnRandomizeWithSeed(wxCommandEvent& event);
+    void OnNew(wxCommandEvent& event);
+    void OnOpen(wxCommandEvent& event);
+    void OnSave(wxCommandEvent& event);
+    void OnSaveAs(wxCommandEvent& event);
+    void OnExit(wxCommandEvent& event);
 
+    void SaveToFile(const wxString& fileName);
 
     void OnTimer(wxTimerEvent& event);
 
