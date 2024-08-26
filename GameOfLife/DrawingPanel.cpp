@@ -57,7 +57,6 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
     double cellWidth = static_cast<double>(panelWidth) / settings->gridSize;
     double cellHeight = static_cast<double>(panelHeight) / settings->gridSize;
 
-
     for (int row = 0; row < settings->gridSize; ++row)
     {
         for (int col = 0; col < settings->gridSize; ++col)
@@ -65,6 +64,7 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
             double x = col * cellWidth;
             double y = row * cellHeight;
 
+            // Set the brush color based on whether the cell is alive or dead
             if (gameBoard[row][col])
             {
                 context->SetBrush(wxBrush(settings->GetLivingCellColor()));
@@ -76,6 +76,7 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
 
             context->DrawRectangle(x, y, cellWidth, cellHeight);
 
+            // Draw neighbor count if enabled
             if (settings->showNeighborCount && row < neighborCounts.size() && col < neighborCounts[row].size() && neighborCounts[row][col] > 0)
             {
                 context->SetFont(wxFontInfo(16), *wxRED);
@@ -89,11 +90,17 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
         }
     }
 
-    // Draw the grid if the setting is enabled
+    // Only draw the grid if the setting is enabled
     if (settings->showGrid)
+    
     {
         // Set pen color for the regular grid lines
         context->SetPen(wxPen(wxColor(0, 0, 0, 64)));  // Light gray for regular grid
+    }
+    else
+    {
+        context->SetPen(*wxTRANSPARENT_PEN);
+    }
         for (int i = 1; i < settings->gridSize; ++i)
         {
             double linePosX = i * cellWidth;
@@ -115,13 +122,14 @@ void DrawingPanel::OnPaint(wxPaintEvent& event)
                 context->StrokeLine(0, linePosY, panelWidth, linePosY);  // Horizontal thick line
             }
         }
-    }
+    
 
     // HUD Drawing
     DrawHUD(context);
 
     delete context;
 }
+
 
 
 void DrawingPanel::DrawHUD(wxGraphicsContext* context)

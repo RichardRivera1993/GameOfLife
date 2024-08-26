@@ -381,10 +381,29 @@ void MainWindow::OnTimer(wxTimerEvent& event)
 
 void MainWindow::OnNew(wxCommandEvent& event)
 {
-    InitializeGrid();  // Clear the game board
     currentFileName.clear();  // Clear the current file name
-    drawingPanel->Refresh();  // Refresh the drawing panel
+
+    // Reset the game board
+    for (int row = 0; row < settings.gridSize; ++row)
+    {
+        for (int col = 0; col < settings.gridSize; ++col)
+        {
+            gameBoard[row][col] = false;  // Clear the game board
+        }
+    }
+
+    // Reset other relevant state variables
+    generationCount = 0;
+    livingCellsCount = 0;
+
+    // Update the drawing panel to reflect the cleared state
+    drawingPanel->SetNeighborCounts(std::vector<std::vector<int>>(settings.gridSize, std::vector<int>(settings.gridSize, 0))); // Clear neighbor counts
+    drawingPanel->Refresh();
+
+    // Update the status bar
+    UpdateStatusBar();
 }
+
 
 
 void MainWindow::OnOpen(wxCommandEvent& event)
